@@ -1,10 +1,17 @@
 import streamlit as st
 from PIL import Image
 import easyocr
-import json
 
-# Initialize EasyOCR Reader
-reader = easyocr.Reader(['en', 'hi'])
+
+# Cache the OCR model to avoid reloading it
+@st.cache_resource
+def load_ocr_model():
+    # Initialize the EasyOCR model for English and Hindi
+    reader = easyocr.Reader(['en', 'hi'])
+    return reader
+
+# Use the cached model
+reader = load_ocr_model()
 
 def extract_text(image):
     """Extract text from an image using EasyOCR."""
