@@ -1,10 +1,11 @@
 import streamlit as st
 from PIL import Image
 import easyocr
+import hashlib
 
 
 # Cache the OCR model to avoid reloading it
-@st.cache_resource
+@st.cache_resource(ttl=3600, max_entries=2)
 def load_ocr_model():
     # Initialize the EasyOCR model for English and Hindi
     reader = easyocr.Reader(['en', 'hi'])
@@ -13,10 +14,23 @@ def load_ocr_model():
 # Use the cached model
 reader = load_ocr_model()
 
+# Function to create a unique hash for the image
+def get_image_hash(image):
+    return hashlib.md5(image.tobytes()).hexdigest()
+
+# Caching the extracted text using Streamlit's caching mechanism
+@st.cache_data(ttl=3600, max_entries=10)
 def extract_text(image):
-    """Extract text from an image using EasyOCR."""
+    """Extract text from an image using EasyOCR and cache the result."""
+    # Generate a hash for the image to cache based on image content
+    image_hash = get_image_hash(image)
+
+    # Perform OCR
     results = reader.readtext(image)
+    
+    # Extract text from OCR results
     text = ' '.join([result[1] for result in results])
+    
     return text
 
 def search_keywords(text, keyword):
