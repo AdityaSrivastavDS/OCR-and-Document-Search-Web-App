@@ -1,14 +1,15 @@
 import streamlit as st
 from PIL import Image
-import pytesseract
+import easyocr
 import json
 
-# Configure Tesseract path (if needed)
-pytesseract.pytesseract.tesseract_cmd = r'./Tesseract-OCR/tesseract.exe'
+# Initialize EasyOCR Reader
+reader = easyocr.Reader(['en', 'hi'])
 
 def extract_text(image):
-    """Extract text from an image using Tesseract OCR."""
-    text = pytesseract.image_to_string(image, lang='eng+hin')
+    """Extract text from an image using EasyOCR."""
+    results = reader.readtext(image)
+    text = ' '.join([result[1] for result in results])
     return text
 
 def search_keywords(text, keyword):
