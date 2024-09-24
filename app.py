@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image
 import easyocr
+import numpy as np
 
 # Cache the OCR model to avoid reloading it
 @st.cache_resource(ttl=3600, max_entries=2)
@@ -12,11 +13,14 @@ def load_ocr_model(gpu=False):
 # Load OCR model (toggle gpu=False if not using a GPU)
 reader = load_ocr_model(gpu=False)
 
-# Function to extract text directly from an image using EasyOCR
+# Function to extract text from the image using EasyOCR
 def extract_text(image):
     """Extract text from an image using EasyOCR."""
+    # Convert the PIL image to a NumPy array
+    image_np = np.array(image)
+    
     # Perform OCR
-    results = reader.readtext(image)
+    results = reader.readtext(image_np)
     
     # Extract text from OCR results
     text = ' '.join([result[1] for result in results])
@@ -55,4 +59,4 @@ def main():
                 st.error(f"Keyword '{keyword}' not found in the extracted text.")
 
 if __name__ == "__main__":
-    main()            
+    main()
